@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QR Data Sync: Tests</title>
+<style>
+.toast-popup .swal2-html-container { white-space: nowrap; }
+.swal2-popup { font-size: max(0.6rem,min(3vw,1rem)); }
+.swal2-popup .swal2-html-container { font-size: unset !important; }
+.swal2-popup .modal-btn { display: inline-block; color: white; background-color: black; border: 0; border-radius: 0.25em; font-size: 1em !important; }
+ul { list-style-type: none; padding: 0; }
+ul li { margin: 0.7rem; }
+</style>
+</head>
+<body>
+
+<main>
+<h1>QR Data Sync: Tests</h1>
+
+<h3><a href="https://github.com/mylofi/qr-data-sync">Github</a></h3>
+
+<p>
+	Before running these tests, make sure you have two devices, and at least one of them has a camera.
+</p>
+<hr>
+<h2>Steps To Run Tests:</h2>
+<ol>
+	<li>TODO</li>
+</ol>
+
+<hr>
+
+<h2>Actions:</h2>
+
+<ul>
+	<li>
+		<button type="button" id="todo-1-btn">todo 1</button>
+	</li>
+	<li>
+		<button type="button" id="todo-2-btn">todo 2</button>
+	</li>
+</ul>
+
+<hr>
+
+<h2>Received Data:</h2>
+
+<ul id="received-data"></ul>
+
+</main>
+
+<!-------------------------->
+
+<script type="importmap">
+{
+	"imports": {
+		"qr-data-sync/src": "./src/qrds.js",
+		"qr-data-sync/dist": "./dist/auto/qrds.js"
+	}
+}
+</script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="./test.js"></script>
+
+</body>
+</html>

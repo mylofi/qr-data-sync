@@ -1,0 +1,51 @@
+{
+	"name": "qr-data-sync",
+	"description": "Browser-only utils for sharing/synchronizing data using 'animated' QR codes",
+	"version": "0.0.0-a",
+	"exports": {
+		".": "./dist/bundlers/qrds.js"
+	},
+	"browser": {
+		"qr-data-sync": "./dist/bundlers/qrds.js"
+	},
+	"scripts": {
+		"build:all": "node scripts/build-all.js",
+		"build:gh-pages": "npm run build:all && node scripts/build-gh-pages.js",
+		"build": "npm run build:all",
+		"test:start": "npx http-server test/ -p 8080",
+		"test": "npm run test:start",
+		"postinstall": "node scripts/postinstall.js"
+	},
+	"dependencies": {
+		"qr-scanner": "~1.4.2"
+	},
+	"devDependencies": {
+		"micromatch": "~4.0.5",
+		"recursive-readdir-sync": "~1.0.6",
+		"terser": "~5.29.2"
+	},
+	"peerDependencies": {
+		"html-webpack-plugin": "~5.6.0"
+	},
+	"peerDependenciesMeta": {
+		"html-webpack-plugin": {
+			"optional": true
+		}
+	},
+	"repository": "mylofi/qr-data-sync",
+	"keywords": [
+		"qr",
+		"qr code",
+		"qr reader",
+		"data",
+		"sync",
+		"sharing"
+	],
+	"bugs": {
+		"url": "https://github.com/mylofi/qr-data-sync/issues",
+		"email": "getify@gmail.com"
+	},
+	"homepage": "https://github.com/mylofi/qr-data-sync",
+	"author": "Kyle Simpson <getify@gmail.com>",
+	"license": "MIT"
+}
