@@ -11,6 +11,26 @@
 .swal2-popup .modal-btn { display: inline-block; color: white; background-color: black; border: 0; border-radius: 0.25em; font-size: 1em !important; }
 ul { list-style-type: none; padding: 0; }
 ul li { margin: 0.7rem; }
+#qr-codes {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	position: relative;
+}
+#qr-codes > img {
+	display: block;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+}
+#qr-scanner-display {
+	width: 100%;
+}
+#qr-scanner-display > video {
+	width: 100%;
+}
+
 </style>
 </head>
 <body>
@@ -26,7 +46,16 @@ ul li { margin: 0.7rem; }
 <hr>
 <h2>Steps To Run Tests:</h2>
 <ol>
-	<li>TODO</li>
+	<li>Open this test-bed on two devices</li>
+	<li>On a device with a camera, click the "receive data" button</li>
+	<li>On the sending device, click the "send data" button, and fill in <em>name</em> and <em>note</em>. Optionally check the "Include random string" checkbox (just to lengthen the data for more frames).</li>
+	<li>Click "Start Sending..." button</li>
+	<li>Hold up the screen of the sending device up to the camera of the receiving device, positioning the animated QR codes so they are visible inside the yellow/orange brackets displayed on the receiving device's screen. Hold the device still while all frames are read.</li>
+	<li>Notice the frame count will go up as frames are read. Also notice the "Data Set ID" will match on both devices.</li>
+	<li>Be patient, as it may take a few seconds to complete all frame reading, if any frames are missed and the loop of frame animations has to go around again.</li>
+	<li>Once all frames are read successfully, the receiving device will auto-close the dialog, and render the received data down in the list below.</li>
+	<li>Click "Done" on the sending device.</li>
+	<li>If both devices have cameras, reverse their roles and complete the same steps.</li>
 </ol>
 
 <hr>
@@ -35,10 +64,10 @@ ul li { margin: 0.7rem; }
 
 <ul>
 	<li>
-		<button type="button" id="todo-1-btn">todo 1</button>
+		<button type="button" id="send-btn">send data</button>
 	</li>
 	<li>
-		<button type="button" id="todo-2-btn">todo 2</button>
+		<button type="button" id="receive-btn">receive data</button>
 	</li>
 </ul>
 

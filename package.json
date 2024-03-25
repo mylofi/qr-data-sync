@@ -3,10 +3,12 @@
 	"description": "Browser-only utils for sharing/synchronizing data using 'animated' QR codes",
 	"version": "0.0.0-a",
 	"exports": {
-		".": "./dist/bundlers/qrds.js"
+		".": "./dist/bundlers/qrds.mjs",
+		"./bundlers/vite": "./bundler-plugins/vite.mjs",
+		"./bundlers/webpack": "./bundler-plugins/webpack.mjs"
 	},
 	"browser": {
-		"qr-data-sync": "./dist/bundlers/qrds.js"
+		"qr-data-sync": "./dist/bundlers/qrds.mjs"
 	},
 	"scripts": {
 		"build:all": "node scripts/build-all.js",

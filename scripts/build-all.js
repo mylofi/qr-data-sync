@@ -27,6 +27,7 @@ const DIST_AUTO_EXTERNAL_QRSCANNER = path.join(DIST_AUTO_EXTERNAL_DIR,path.basen
 const DIST_AUTO_EXTERNAL_QRSCANNER_WORKER = path.join(DIST_AUTO_EXTERNAL_DIR,path.basename(QRSCANNER_WORKER_SRC));
 
 const DIST_BUNDLERS_DIR = path.join(DIST_DIR,"bundlers");
+const DIST_BUNDLERS_QRDS_FILE = path.join(DIST_BUNDLERS_DIR,path.basename(QRDS_SRC).replace(/\.js$/,".mjs"));
 const DIST_BUNDLERS_QRDS_EXTERNAL_BUNDLE_FILE = path.join(DIST_BUNDLERS_DIR,"qrds-external-bundle.js");
 
 
@@ -73,14 +74,15 @@ async function main() {
 		[ QRDS_SRC, ],
 		SRC_DIR,
 		DIST_BUNDLERS_DIR,
-		(contents,filename) => prepareFileContents(
+		(contents,outputPath,filename = path.basename(outputPath)) => prepareFileContents(
 			// alter (remove) "external.js" dependencies-import
 			// since bundlers handle dependencies differently
 			contents.replace(
 				/import[^\r\n]*".\/external.js";?/,
 				"import QRScanner from \"qr-scanner\""
 			),
-			`bundlers/${filename}`
+			outputPath.replace(/\.js$/,".mjs"),
+			`bundlers/${filename.replace(/\.js$/,".mjs")}`
 		),
 		/*skipPatterns=*/[ "**/*.txt", "**/*.json", "**/external" ]
 	);
@@ -124,18 +126,22 @@ async function main() {
 
 	// ****************************
 
-	async function prepareFileContents(contents,filename) {
+	async function prepareFileContents(contents,outputPath,filename = path.basename(outputPath)) {
 		// JS file (to minify)?
 		if (/\.[mc]?js$/i.test(filename)) {
 			contents = await minifyJS(contents);
 		}
 
 		// add copyright header
-		return `${
-			mainCopyrightHeader.replace(/#FILENAME#/g,filename)
-		}\n${
-			contents
-		}`;
+		return {
+			contents: `${
+				mainCopyrightHeader.replace(/#FILENAME#/g,filename)
+			}\n${
+				contents
+			}`,
+
+			outputPath,
+		};
 	}
 }
 
@@ -156,7 +162,7 @@ async function buildFiles(files,fromBasePath,toDir,processFileContents,skipPatte
 		}
 
 		let contents = await fsp.readFile(fromPath,{ encoding: "utf8", });
-		contents = await processFileContents(contents,path.basename(relativePath));
+		({ contents, outputPath, } = await processFileContents(contents,outputPath));
 
 		await fsp.writeFile(outputPath,contents,{ encoding: "utf8", });
 	}

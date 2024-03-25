@@ -6,11 +6,11 @@ Then copy over all `dist/auto/*` contents, as-is:
 
 * `dist/auto/qrds.js`
 
-    **Note:** not `dist/bundlers/qrds.js`, which is only intended [for web application projects WITH a bundler](BUNDLERS.md)
+    **Note:** this is *not* the same as `dist/bundlers/qrds.js`, which is only intended [for web application projects WITH a bundler](BUNDLERS.md)
 
 * `dist/auto/external.js`
 
-    This is an *auto-loader* that dynamically loads the rest of the `external/*` dependencies via `<script>`-element injection into the DOM. `dist/auto/qrds.js` imports and activates this loader automatically.
+    This is an *auto-loader* that dynamically loads some of the `external/*` dependencies via `<script>`-element injection into the DOM (and others with `import`). `dist/auto/qrds.js` imports and activates this loader automatically.
 
 * `dist/auto/external/*` (preserve the whole `external/` sub-directory):
     - `qrcode.js`
