@@ -153,8 +153,8 @@ async function showQRCodes(name,note,randomString) {
 			}
 			catch (err) {
 				if (!closing) {
-					Swal.showValidationMessage(err.toString());
-					console.log(err);
+					console.error(err);
+					await showError(`Generating QR codes failed: ${err.toString()}`);
 				}
 			}
 		},
@@ -229,11 +229,13 @@ async function promptReceiveData() {
 
 				// render received data
 				renderReceivedData(data);
+
+				return showToast("Data received successfully.");
 			}
 			catch (err) {
 				if (!closing) {
-					Swal.showValidationMessage(err.toString());
-					console.log(err);
+					console.error(err);
+					await showError(`Reading QR codes failed: ${err.toString()}`);
 				}
 			}
 		},
@@ -284,4 +286,27 @@ function renderReceivedData(data) {
 function randomString(length) {
 	var rv = crypto.getRandomValues(new Uint8Array(length));
 	return btoa(String.fromCharCode.apply(null,rv));
+}
+
+function showError(errMsg) {
+	return Swal.fire({
+		title: "Error!",
+		text: errMsg,
+		icon: "error",
+		confirmButtonText: "ok",
+	});
+}
+
+function showToast(toastMsg) {
+	return Swal.fire({
+		text: toastMsg,
+		showConfirmButton: false,
+		showCloseButton: true,
+		timer: 5000,
+		toast: true,
+		position: "top-end",
+		customClass: {
+			popup: "toast-popup",
+		},
+	});
 }

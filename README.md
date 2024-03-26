@@ -1,6 +1,6 @@
 # QR Data Sync
 
-[![npm Module](https://badge.fury.io/mylofi/qr-data-sync.svg)](https://www.npmjs.org/package/qr-data-sync)
+[![npm Module](https://badge.fury.io/@lofi%2fqr-data-sync.svg)](https://www.npmjs.org/package/@lofi/qr-data-sync)
 [![License](https://img.shields.io/badge/license-MIT-a1356a)](LICENSE.txt)
 
 **QR Data Sync** is a browser library with utils for sharing/synchronizing data via "animated" QR codes.
@@ -13,11 +13,15 @@
 
 ## Deployment / Import
 
-The [**qr-data-sync** npm package](https://npmjs.com/package/webauthn-local-client) includes a `dist/` directory with all files you need to deploy **qr-data-sync** (and its dependencies) into your application/project.
+```cmd
+npm install @lofi/qr-data-sync
+```
+
+The [**qr-data-sync** npm package](https://npmjs.com/package/@lofi/webauthn-local-client) includes a `dist/` directory with all files you need to deploy **qr-data-sync** (and its dependencies) into your application/project.
 
 If you obtain this library via git instead of npm, you'll need to [build `dist/` manually](#re-building-dist) before deployment.
 
-* **USING A WEB BUNDLER?** (vite, webpack, etc) Use the `dist/bundlers/*` files and see [Bundler Deployment](BUNDLERS.md) for instructions.
+* **USING A WEB BUNDLER?** (Vite, Webpack, etc) Use the `dist/bundlers/*` files and see [Bundler Deployment](BUNDLERS.md) for instructions.
 
 * Otherwise, use the `dist/auto/*` files and see [Non-Bundler Deployment](NON-BUNDLERS.md) for instructions.
 
