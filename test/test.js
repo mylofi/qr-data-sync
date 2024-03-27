@@ -144,12 +144,14 @@ async function showQRCodes(name,note,randomString) {
 			qrFrameCountEl = document.getElementById("qr-frame-count");
 
 			try {
-				await send({
+				await send(
 					data,
-					qrCodeIDorElement: "qr-codes",
-					onFrameRendered,
-					signal: cancelToken.signal,
-				});
+					/*qrCodeIDorElement=*/"qr-codes",
+					{
+						onFrameRendered,
+						signal: cancelToken.signal,
+					}
+				);
 			}
 			catch (err) {
 				if (!closing) {
@@ -169,7 +171,7 @@ async function showQRCodes(name,note,randomString) {
 
 	// ********************************
 
-	function onFrameRendered(dataSetID,frameIndex,frameCount) {
+	function onFrameRendered(frameIndex,frameCount,frameTextChunk,dataSetID) {
 		qrDataSetIDEl.innerText = dataSetID;
 		qrFrameIndexEl.innerText = String(frameIndex + 1);
 		qrFrameCountEl.innerText = frameCount;
@@ -180,7 +182,7 @@ async function promptReceiveData() {
 	var closing = false;
 	var cancelToken = new AbortController();
 	var qrDataSetIDEl;
-	var qrFrameIndexEl;
+	var qrFramesReadEl;
 	var qrFrameCountEl;
 
 	await Swal.fire({
@@ -190,8 +192,8 @@ async function promptReceiveData() {
 				Data Set ID: <span id="qr-data-set-id">..</span>
 			</p>
 			<p>
-				Frame:
-				<span id="qr-frame-index">0</span> /
+				Frames Read:
+				<span id="qr-frames-read">0</span> /
 				<span id="qr-frame-count">0</span>
 			</p>
 
@@ -209,21 +211,23 @@ async function promptReceiveData() {
 
 		async didOpen(popupEl) {
 			qrDataSetIDEl = document.getElementById("qr-data-set-id");
-			qrFrameIndexEl = document.getElementById("qr-frame-index");
+			qrFramesReadEl = document.getElementById("qr-frames-read");
 			qrFrameCountEl = document.getElementById("qr-frame-count");
 			var qrScannerDisplayEl = document.getElementById("qr-scanner-display");
 			var videoEl = qrScannerDisplayEl.querySelector("video");
 
 			try {
 				let {
-					frameSetID,
-					frameCount,
 					data,
-				} = await receive({
-					videoIDorElement: videoEl,
-					onFrameReceived,
-					signal: cancelToken.signal,
-				});
+					frameCount,
+					frameSetID,
+				} = await receive(
+					/*videoIDorElement=*/videoEl,
+					{
+						onFrameReceived,
+						signal: cancelToken.signal,
+					}
+				);
 				closing = true;
 				Swal.close();
 
@@ -243,16 +247,16 @@ async function promptReceiveData() {
 		willClose() {
 			closing = true;
 			cancelToken.abort("Closing.");
-			qrDataSetIDEl = qrFrameIndexEl = qrFrameCountEl = cancelToken = null;
+			qrDataSetIDEl = qrFramesReadEl = qrFrameCountEl = cancelToken = null;
 		},
 	});
 
 
 	// ********************************
 
-	function onFrameReceived(dataSetID,frameIndex,frameCount) {
+	function onFrameReceived(framesRead,frameCount,frameIndex,frameTextChunk,dataSetID) {
 		qrDataSetIDEl.innerText = dataSetID;
-		qrFrameIndexEl.innerText = String(frameIndex + 1);
+		qrFramesReadEl.innerText = String(framesRead + 1);
 		qrFrameCountEl.innerText = frameCount;
 	}
 }

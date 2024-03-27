@@ -3,6 +3,8 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 
 
+// ********************************
+
 export default QRDS;
 
 
@@ -21,7 +23,7 @@ function QRDS() {
 
 		async configResolved(cfg) {
 			config = cfg;
-			var bundlersDir = path.join(config.root,"node_modules","qr-data-sync","dist","bundlers");
+			var bundlersDir = path.join(config.root,"node_modules","@lo-fi","qr-data-sync","dist","bundlers");
 			qrdsSrcPath = path.join(bundlersDir,"qrds.js");
 			externalBundleSrcPath = path.join(bundlersDir,"qrds-external-bundle.js");
 			externalBundleDestPath = (

@@ -1,7 +1,7 @@
 {
 	"name": "qr-data-sync",
 	"description": "Browser-only utils for sharing/synchronizing data using 'animated' QR codes",
-	"version": "0.0.0-a",
+	"version": "0.999.0",
 	"exports": {
 		".": "./dist/bundlers/qrds.mjs",
 		"./bundlers/vite": "./bundler-plugins/vite.mjs",

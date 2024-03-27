@@ -6,6 +6,7 @@ import { QRScanner, QRCode, } from "./external.js";
 
 // ********************************
 
+const frameEncodingVersion = 1;
 var cancelReceive;
 var cancelSend;
 
@@ -17,18 +18,20 @@ export { receive, send, };
 
 // ********************************
 
-function receive({
+function receive(
 	// required:
 	videoIDorElement,
 
-	// optional:
-	maxScansPerSecond = 10,				// range: 2 - 13
-	preferredCamera = "environment",
-	highlightScanRegion = true,
-	onFrameReceived = ()=>{},
-	signal: cancelReceiveSignal,
-	...otherScannerOptions
-} = {}) {
+	// optional config options:
+	{
+		maxScansPerSecond = 10,				// range: 2 - 13
+		preferredCamera = "environment",
+		highlightScanRegion = true,
+		onFrameReceived = () => {},
+		signal: cancelReceiveSignal = null,
+		...otherScannerOptions
+	} = {}
+) {
 	// scanner still active from previous call?
 	if (cancelReceive != null) {
 		cancelReceive("Canceled.");
@@ -48,29 +51,30 @@ function receive({
 		throw new Error("Must specify <video>, by element or by ID");
 	}
 
-	var currentFrameSetHash = null;
+	maxScansPerSecond = Math.min(Math.max(maxScansPerSecond,2),13);
+
+	var currentDataSetID = null;
 	var framesRead = 0;
 	var frameCount = 0;
 	var scannedFrames = [];
-
-	maxScansPerSecond = Math.min(Math.max(maxScansPerSecond,2),13);
-
-	var scanner = new QRScanner(videoEl,onDecoded,{
-		onDecodeError,
-		maxScansPerSecond,
-		preferredCamera,
-		highlightScanRegion,
-		...otherScannerOptions
-	});
-	scanner.start();
-
+	var scanner;
 	var onComplete;
 	var pr = new Promise((res,rej) => {
 		onComplete = res;
 		cancelReceive = rej;
 		if (cancelReceiveSignal != null) {
+			cancelReceiveSignal.throwIfAborted();
 			cancelReceiveSignal.addEventListener("abort",onAbort,false);
 		}
+
+		scanner = new QRScanner(videoEl,onDecoded,{
+			onDecodeError,
+			maxScansPerSecond,
+			preferredCamera,
+			highlightScanRegion,
+			...otherScannerOptions
+		});
+		scanner.start();
 	});
 	pr.catch(cleanup).finally(cleanup);
 	return pr;
@@ -80,40 +84,43 @@ function receive({
 
 	function onDecoded(result) {
 		var decodedData = result.data;
-		if (/^[a-fA-F0-9]+:\d+:\d+:.+/.test(decodedData)) {
-			let { frameSetHash, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(decodedData);
+		if (/^:\d+:[a-fA-F0-9]+:\d+:\d+:.+/.test(decodedData)) {
+			let { dataSetID, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(decodedData);
 
-			if (currentFrameSetHash) {
-				// frame-set has changed?
-				if (currentFrameSetHash != frameSetHash) {
-					// reset scanned frames
-					scannedFrames.length = 0;
+			// decoding frame text as expected?
+			if (dataSetID != null) {
+				if (currentDataSetID) {
+					// frame-set has changed?
+					if (currentDataSetID != dataSetID) {
+						// reset scanned frames
+						scannedFrames.length = 0;
+					}
 				}
-			}
-			else {
-				currentFrameSetHash = frameSetHash;
-			}
-			scannedFrames[frameIndex] = frameTextChunk;
-			framesRead = scannedFrames.filter(Boolean).length;
-
-			onFrameReceived(currentFrameSetHash,frameIndex,frameCount,frameTextChunk);
-
-			// all expected frames read?
-			if (framesRead == frameCount) {
-				try {
-					let data = scannedFrames.join("");
-					try { data = JSON.parse(data); } catch (err) {}
-
-					onComplete({
-						frameSetID: currentFrameSetHash,
-						frameCount,
-						data,
-					});
+				else {
+					currentDataSetID = dataSetID;
 				}
-				catch (err) {
-					let cb = cancelReceive;
-					cleanup();
-					if (cb) cb(err);
+				scannedFrames[frameIndex] = frameTextChunk;
+				framesRead = scannedFrames.filter(Boolean).length;
+
+				onFrameReceived(framesRead,frameCount,frameIndex,frameTextChunk,currentDataSetID);
+
+				// all expected frames read?
+				if (framesRead == frameCount) {
+					try {
+						let data = scannedFrames.join("");
+						try { data = JSON.parse(data); } catch (err) {}
+
+						onComplete({
+							dataSetID: currentDataSetID,
+							frameCount,
+							data,
+						});
+					}
+					catch (err) {
+						let cb = cancelReceive;
+						cleanup();
+						if (cb) cb(err);
+					}
 				}
 			}
 		}
@@ -144,18 +151,20 @@ function receive({
 	}
 }
 
-function send({
+function send(
 	// required:
 	data,
 	qrCodeIDorElement,
 
-	// optional:
-	maxFramesPerSecond = 7,				// range: 2 - 13
-	frameTextChunkSize = 50, 			// range: 25 - 150
-	qrCodePixelDimensions = null,		// minimum: 150
-	onFrameRendered = ()=>{},
-	signal: cancelSendSignal,
-} = {}) {
+	// optional config options:
+	{
+		maxFramesPerSecond = 7,				// range: 2 - 13
+		frameTextChunkSize = 50, 			// range: 25 - 150
+		qrCodeSize = null,					// minimum: 150 (pixels)
+		onFrameRendered = () => {},
+		signal: cancelSendSignal = null,
+	} = {}
+) {
 	// QR code renderer still active?
 	if (cancelSend != null) {
 		cancelSend("Canceled.");
@@ -194,20 +203,21 @@ function send({
 	var frames = [];
 	var framesLen = 0;
 	var frameCache = [];
-	var intvDelay = Math.min(Math.max(Math.ceil(1000 / maxFramesPerSecond),75),500);
+	var intvDelay = Math.min(Math.max(Math.ceil(1000 / Number(maxFramesPerSecond) || 1),75),500);
 	var intv;
 	var imgLoadPr;
 	var imgLoadTrigger;
 
-	frameTextChunkSize = Math.min(Math.max(Math.floor(frameTextChunkSize || 0),25),150);
+	frameTextChunkSize = Math.min(Math.max(Math.floor(Number(frameTextChunkSize) || 0),25),150);
 
 	var cancelSend;
 	return (new Promise((res,rej) => {
 		cancelSend = rej;
 		if (cancelSendSignal != null) {
+			cancelSendSignal.throwIfAborted();
 			cancelSendSignal.addEventListener("abort",onAbort,false);
 		}
-		generateFrames(data).then(res,cleanup);
+		generateFrames(data).then(() => res(true),cleanup);
 	}));
 
 
@@ -224,8 +234,8 @@ function send({
 		framesLen = frames.length;
 		var frameLengthDigits = String(framesLen).length;
 
-		// prepare frame chunks list with hash/index/frame-count headers
-		var frameSetHash = (
+		// prepare frame chunks list with hashID/index/frame-count headers
+		var dataSetID = (
 			buf2hex(
 				await crypto.subtle.digest("SHA-1",(new TextEncoder()).encode(data))
 			)
@@ -233,12 +243,13 @@ function send({
 		);
 		frames = (
 			frames.map((text,idx) => (
-				[
-					frameSetHash,
+				`:${[
+					frameEncodingVersion,
+					dataSetID,
 					String(idx).padStart(frameLengthDigits,"0"),
 					framesLen,
 					text.padEnd(frameTextChunkSize," "),
-				].join(":")
+				].join(":")}`
 			))
 		);
 		frameCache.length = 0;
@@ -271,8 +282,8 @@ function send({
 					text: frameText,
 					colorDark : "#000000",
 					colorLight : "#ffffff",
-					width: Math.max(qrCodePixelDimensions || qrCodeDim.width || 0, 150),
-					height: Math.max(qrCodePixelDimensions || qrCodeDim.height || 0, 150),
+					width: Math.max(qrCodeSize || qrCodeDim.width || 0, 150),
+					height: Math.max(qrCodeSize || qrCodeDim.height || 0, 150),
 					correctLevel : QRCode.CorrectLevel.H,
 				});
 				qrCodeImgEl = qrCodeEl.querySelector("img");
@@ -280,8 +291,10 @@ function send({
 
 				qrCodeImgEl.addEventListener("load",onImgLoad,false);
 
-				let { frameSetHash, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameText);
-				onFrameRendered(frameSetHash,frameIndex,frameCount,frameTextChunk);
+				let { dataSetID, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameText);
+				if (dataSetID != null) {
+					onFrameRendered(frameIndex,frameCount,frameTextChunk,dataSetID);
+				}
 			}
 			// QR code renderer already present, so just
 			// update the rendered image
@@ -320,8 +333,10 @@ function send({
 
 				let frameText = frames.shift();
 				qrCodeRender.makeCode(frameText);
-				let { frameSetHash, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameText);
-				onFrameRendered(frameSetHash,frameIndex,frameCount,frameTextChunk);
+				let { dataSetID, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameText);
+				if (dataSetID != null) {
+					onFrameRendered(frameIndex,frameCount,frameTextChunk,dataSetID);
+				}
 			}
 		}
 		// all frames generated, so now process rendering
@@ -351,8 +366,10 @@ function send({
 				qrCodeCnvEl.getContext("2d").drawImage(qrCodeImgEl,0,0);
 			}
 
-			let { frameSetHash, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameEntry[0]);
-			onFrameRendered(frameSetHash,frameIndex,frameCount,frameTextChunk);
+			let { dataSetID, frameIndex, frameCount, frameTextChunk, } = decodeFrameText(frameEntry[0]);
+			if (dataSetID != null) {
+				onFrameRendered(frameIndex,frameCount,frameTextChunk,dataSetID);
+			}
 		}
 
 		// need to rotate through multiple frames?
@@ -403,12 +420,21 @@ function send({
 }
 
 function decodeFrameText(frameText) {
-	var [ , frameSetHash, frameIndex, frameCount, frameTextChunk, ] = (
-		frameText.match(/^([a-fA-F0-9]{5}):(\d+):(\d+):([^]+)$/)
-	);
-	frameIndex = Number(frameIndex);
-	frameCount = Number(frameCount);
-	return { frameSetHash, frameIndex, frameCount, frameTextChunk, };
+	var [ , encodedVersion, ] = frameText.match(/^:(\d+):/) || [];
+	encodedVersion = Number(encodedVersion) || null;
+
+	// expected version of frame encoding?
+	if (encodedVersion == frameEncodingVersion) {
+		let [ , dataSetID, frameIndex, frameCount, frameTextChunk, ] = (
+			frameText.match(/^:\d+:([a-fA-F0-9]{5}):(\d+):(\d+):([^]+)$/)
+		);
+		frameIndex = Number(frameIndex);
+		frameCount = Number(frameCount);
+		return { dataSetID, frameIndex, frameCount, frameTextChunk, };
+	}
+
+	// decoding failed (unexpected format, mismatched version, etc)
+	return {};
 }
 
 // Adapted from: https://stackoverflow.com/a/40031979/228852

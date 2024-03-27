@@ -1,16 +1,18 @@
+// References:
+//    https://github.com/principalstudio/html-webpack-inject-preload
+//    https://github.com/icelam/html-inline-script-webpack-plugin
+
 import path from "node:path";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 
 
+// ********************************
+
 export default QRDS;
 
 
 // ********************************
-
-// References:
-//    https://github.com/principalstudio/html-webpack-inject-preload
-//    https://github.com/icelam/html-inline-script-webpack-plugin
 
 function WALC() {
 	var options;
@@ -25,7 +27,7 @@ function WALC() {
 			compiler.hooks.beforeRun.tap(pluginName,compiler => {
 				options = compiler.options;
 
-				var bundlersDir = path.join(options.context,"node_modules","qr-data-sync","dist","bundlers");
+				var bundlersDir = path.join(options.context,"node_modules","@lo-fi","qr-data-sync","dist","bundlers");
 				qrdsSrcPath = path.join(bundlersDir,"qrds.js");
 				externalBundleSrcPath = path.join(bundlersDir,"qrds-external-bundle.js");
 				externalBundleDestPath = path.join(options.output.path,path.basename(externalBundleSrcPath));
