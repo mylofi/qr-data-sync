@@ -14,7 +14,7 @@ export default QRDS;
 
 // ********************************
 
-function WALC() {
+function QRDS() {
 	var options;
 	var qrdsSrcPath;
 	var externalBundleSrcPath;
