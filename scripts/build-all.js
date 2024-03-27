@@ -69,7 +69,7 @@ async function main() {
 		/*skipPatterns=*/[ "**/*.txt", "**/*.json", "**/external" ]
 	);
 
-	// build src/qrds.js to bundlers/qrds.js
+	// build src/qrds.js to bundlers/qrds.mjs
 	await buildFiles(
 		[ QRDS_SRC, ],
 		SRC_DIR,
@@ -96,7 +96,7 @@ async function main() {
 
 	// build qrds-external-bundle.js
 	var qrdsExternalBundleContents = [
-		`/*! ${path.basename(QRCODE_SRC)} */`, await minifyJS(qrCodeContents),
+		`/*! ${path.basename(QRCODE_SRC)} */`, await minifyJS(qrCodeContents,/*esModuleFormat=*/false),
 	].join("\n");
 
 	await Promise.all([
@@ -168,7 +168,7 @@ async function buildFiles(files,fromBasePath,toDir,processFileContents,skipPatte
 	}
 }
 
-async function minifyJS(contents) {
+async function minifyJS(contents,esModuleFormat = true) {
 	let result = await terser.minify(contents,{
 		mangle: {
 			keep_fnames: true,
@@ -179,7 +179,7 @@ async function minifyJS(contents) {
 		output: {
 			comments: /^!/,
 		},
-		module: true,
+		module: esModuleFormat,
 	});
 	if (!(result && result.code)) {
 		if (result.error) throw result.error;

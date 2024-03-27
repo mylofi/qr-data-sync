@@ -217,7 +217,7 @@ function send(
 			cancelSendSignal.throwIfAborted();
 			cancelSendSignal.addEventListener("abort",onAbort,false);
 		}
-		generateFrames(data).then(() => res(true),cleanup);
+		generateFrames(data).then(() => res(true),e => { rej(e); cleanup(); });
 	}));
 
 

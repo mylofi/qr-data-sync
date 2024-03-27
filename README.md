@@ -7,7 +7,7 @@
 
 ----
 
-[Demo/Tests](https://mylofi.github.io/qr-data-sync/)
+[Library Tests (Demo)](https://mylofi.github.io/qr-data-sync/)
 
 ----
 
@@ -23,7 +23,7 @@ This is what **QR Data Sync** library supports.
 npm install @lo-fi/qr-data-sync
 ```
 
-The [**@lo-fi/qr-data-sync** npm package](https://npmjs.com/package/@lo-fi/webauthn-local-client) includes a `dist/` directory with all files you need to deploy **qr-data-sync** (and its dependencies) into your application/project.
+The [**@lo-fi/qr-data-sync** npm package](https://npmjs.com/package/@lo-fi/qr-data-sync) includes a `dist/` directory with all files you need to deploy **qr-data-sync** (and its dependencies) into your application/project.
 
 If you obtain this library via git instead of npm, you'll need to [build `dist/` manually](#re-building-dist) before deployment.
 

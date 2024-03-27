@@ -1,7 +1,7 @@
 {
-	"name": "qr-data-sync",
+	"name": "@lo-fi/qr-data-sync",
 	"description": "Browser-only utils for sharing/synchronizing data using 'animated' QR codes",
-	"version": "0.999.0",
+	"version": "0.999.1",
 	"exports": {
 		".": "./dist/bundlers/qrds.mjs",
 		"./bundlers/vite": "./bundler-plugins/vite.mjs",
@@ -34,7 +34,10 @@
 			"optional": true
 		}
 	},
-	"repository": "mylofi/qr-data-sync",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mylofi/qr-data-sync.git"
+	},
 	"keywords": [
 		"qr",
 		"qr code",
