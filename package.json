@@ -1,9 +1,10 @@
 {
 	"name": "@lo-fi/qr-data-sync",
 	"description": "Browser-only utils for sharing/synchronizing data using 'animated' QR codes",
-	"version": "0.999.1",
+	"version": "0.999.2",
 	"exports": {
 		".": "./dist/bundlers/qrds.mjs",
+		"./bundlers/astro": "./bundler-plugins/astro.mjs",
 		"./bundlers/vite": "./bundler-plugins/vite.mjs",
 		"./bundlers/webpack": "./bundler-plugins/webpack.mjs"
 	},

@@ -27,7 +27,7 @@ The [**@lo-fi/qr-data-sync** npm package](https://npmjs.com/package/@lo-fi/qr-da
 
 If you obtain this library via git instead of npm, you'll need to [build `dist/` manually](#re-building-dist) before deployment.
 
-* **USING A WEB BUNDLER?** (Vite, Webpack, etc) Use the `dist/bundlers/*` files and see [Bundler Deployment](BUNDLERS.md) for instructions.
+* **USING A WEB BUNDLER?** (Astro, Vite, Webpack, etc) Use the `dist/bundlers/*` files and see [Bundler Deployment](BUNDLERS.md) for instructions.
 
 * Otherwise, use the `dist/auto/*` files and see [Non-Bundler Deployment](NON-BUNDLERS.md) for instructions.
 
@@ -36,7 +36,7 @@ If you obtain this library via git instead of npm, you'll need to [build `dist/`
 To generate an "animated" QR code (cycle of frames) that *sends* data, use `send()`:
 
 ```js
-import { send } from "...";
+import { send } from "..";
 
 var sendData = { /* ... */ };
 var qrCodeIDOrElement = /* ... */;
@@ -89,7 +89,7 @@ Optional configuration can be passed in as properties of an object, as the third
 * `signal` (AbortSignal): an [`AbortController.signal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/signal) instance to stop/cancel the sending "animation".
 
     ```js
-    import { send } from "...";
+    import { send } from "..";
 
     var cancelToken = new AbortController();
     var sendStarted = await send( /* .. */, { signal: cancelToken.signal });
@@ -117,7 +117,7 @@ Optional configuration can be passed in as properties of an object, as the third
 To scan an "animated" QR code (cycle of frames) that *receives* data, use `receive()`:
 
 ```js
-import { receive } from "...";
+import { receive } from "..";
 
 var videoIDorElement = /* ... */;
 var receiveOptions = { /* ... */ };
@@ -159,7 +159,7 @@ Optional configuration can be passed in as properties of an object, as the secon
 * `signal` (AbortSignal): an [`AbortController.signal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/signal) instance to stop/cancel the receive scanning.
 
     ```js
-    import { receive } from "...";
+    import { receive } from "..";
 
     var cancelToken = new AbortController();
     var receiveResult = await receive( /* .. */, { signal: cancelToken.signal });
